@@ -1,50 +1,76 @@
-#include <deque>
-#include <queue>
-
 class CustomStack {
 public:
-    std::deque<int> q;
-    int maxSize;
+    class Node {
+    public:
+        int data;
+        Node* front;
+        Node* prev;
+        Node(int data) {
+            this->data = data;
+            front = nullptr;
+            prev = nullptr;
+        }
+    };
+
+    Node* root;
+    int cnt;
+    int size;
 
     CustomStack(int maxSize) {
-        this->maxSize = maxSize;
+        this->cnt = maxSize;
+        size = 0;
+        root = nullptr;
     }
 
     void push(int x) {
-        if (q.size() == maxSize) {
+        if (size == cnt) {
             return;
-        } else {
-            q.push_front(x);
         }
+        Node* temp = new Node(x);
+        if (size == 0) {
+            root = temp;
+        } else {
+            temp->front = root;
+            root->prev = temp;
+            root = temp;
+        }
+        size++;
     }
 
     int pop() {
-        if (q.empty()) {
+        if (size == 0) {
             return -1;
         }
-
-        int val = q.front();
-        q.pop_front();
+        int val = root->data;
+        Node* temp = root;
+        root = root->front;
+        if (root != nullptr) {
+            root->prev = nullptr;
+        }
+        delete temp;
+        size--;
         return val;
     }
 
     void increment(int k, int val) {
-        if (k > q.size()) {
-            k = q.size();
+        if (size == 0) {
+            return;
         }
-
-        std::deque<int> temp;
-        while (k--) {
-            temp.push_front(q.back() + val);
-            q.pop_back();
+        Node* temp = root;
+        if (size < k) {
+            k = size;
         }
-
-        while (!temp.empty()) {
-            q.push_back(temp.front());
-            temp.pop_front();
+        while (temp->front) {
+            temp = temp->front;
+        }
+        while (k > 0 && temp) {
+            temp->data += val;
+            temp = temp->prev;
+            k--;
         }
     }
 };
+
 
 /**
  * Your CustomStack object will be instantiated and called as such:
